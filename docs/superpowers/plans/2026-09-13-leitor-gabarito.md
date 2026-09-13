@@ -30,7 +30,9 @@
 
 O trabalho das Tasks 1–10 foi concluído e publicado nas branches
 `implementacao` e `main` até o commit `0f78388`. A migração posterior da Task 9
-para Gemini está registrada no commit `14973c8` da `main`.
+para Gemini está registrada no commit `14973c8`. Depois dela, foram publicados
+o kit de demonstração e as instruções consolidadas; as branches `main` e
+`implementacao` estão sincronizadas no commit `06f7a88`.
 
 | Task | Estado | Commits |
 |---|---|---|
