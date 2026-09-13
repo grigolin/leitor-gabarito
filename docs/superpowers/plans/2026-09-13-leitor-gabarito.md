@@ -567,11 +567,29 @@ from gabarito import layout as L
 
 
 def test_bolinha_marcada_fica_escura_e_o_resto_nao():
+    marcas = sintetico.marcas_de_respostas(["A"] * L.N_QUESTOES, estilo="cheia")
     pagina = sintetico.folha_preenchida(
-        sintetico.marcas_de_respostas(["A"] * L.N_QUESTOES), rng=np.random.default_rng(0)
+        marcas, rng=np.random.default_rng(0), largura_px=2480
     )
     assert pagina.dtype == np.uint8
     assert pagina.ndim == 2
+
+    px_por_mm = 2480 / L.A4_LARGURA_MM
+    largura_conteudo = L.CANONICA_MM_LARGURA * px_por_mm
+    altura_conteudo = L.CANONICA_MM_ALTURA * px_por_mm
+    deslocamento = L.MARGEM_MM * px_por_mm
+    escala = largura_conteudo / L.CANONICA_LARGURA
+    raio = int(L.BOLINHA_RAIO * escala * L.BOLINHA_INSET)
+
+    def media(questao, alternativa):
+        x, y = L.centro_bolinha(questao, alternativa, largura_conteudo, altura_conteudo)
+        x, y = int(deslocamento + x), int(deslocamento + y)
+        return pagina[y - raio : y + raio, x - raio : x + raio].mean()
+
+    for questao in range(L.N_QUESTOES):
+        assert media(questao, 0) < 80, f"q{questao} A deveria estar preenchida"
+        for alternativa in range(1, L.N_ALTERNATIVAS):
+            assert media(questao, alternativa) > 240, f"q{questao} alt{alternativa} deveria estar vazia"
 
 
 def test_degradar_preserva_a_detectabilidade_dos_marcadores():
@@ -796,7 +814,7 @@ def foto(respostas, rng, estilo="boa", nome="Ana Carolina de Souza", **kwargs):
 - [ ] **Step 4: Rodar para confirmar que passa**
 
 Run: `uv run pytest tests/test_sintetico.py -v`
-Expected: PASS, 8 testes (4 + os 5 parametrizados menos... na prática 3 + 5 = 8).
+Expected: PASS, 8 testes (3 diretos + 5 parametrizados por estilo).
 
 - [ ] **Step 5: Olhar uma foto sintética**
 
@@ -1722,7 +1740,7 @@ AMARELO = (0, 190, 220)
 CINZA = (130, 130, 130)
 
 
-def _cor_da_bolinha(leitura, questao_resultado, alternativa):
+def _cor_da_bolinha(leitura, questao_resultado):
     if leitura.ambigua:
         return AMARELO
     if not leitura.marcada:
@@ -1737,14 +1755,14 @@ def anotar(canonica, leituras, resultado):
     base = cv2.cvtColor(canonica, cv2.COLOR_GRAY2BGR)
     imagem = Image.fromarray(cv2.cvtColor(base, cv2.COLOR_BGR2RGB))
     pincel = ImageDraw.Draw(imagem)
-    fonte_estado = fonte(19)
+    fonte_estado = fonte(16)
     raio = L.BOLINHA_RAIO + 6
 
     for questao in range(L.N_QUESTOES):
         questao_resultado = resultado.questoes[questao]
         for alternativa in range(L.N_ALTERNATIVAS):
             leitura = leituras[questao][alternativa]
-            cor = _cor_da_bolinha(leitura, questao_resultado, alternativa)
+            cor = _cor_da_bolinha(leitura, questao_resultado)
             if cor is None:
                 continue
             x, y = L.centro_bolinha(questao, alternativa)
@@ -1757,18 +1775,24 @@ def anotar(canonica, leituras, resultado):
         if questao_resultado.estado is Estado.ANULADA:
             x0, _ = L.centro_bolinha(questao, 0)
             x1, y = L.centro_bolinha(questao, L.N_ALTERNATIVAS - 1)
-            pincel.line((x0 - raio, y, x1 + raio, y), fill=CINZA[::-1], width=3)
+            pincel.line(
+                (x0 - raio, y, x1 + raio, y),
+                fill=(CINZA[2], CINZA[1], CINZA[0]),
+                width=3,
+            )
 
         _, y = L.centro_bolinha(questao, L.N_ALTERNATIVAS - 1)
         rotulo = {
             Estado.RESPONDIDA: f"{questao_resultado.marcada}  (certa: {questao_resultado.correta})",
-            Estado.ANULADA: "ANULADA (mais de uma marcação)",
+            Estado.ANULADA: "ANULADA",
             Estado.EM_BRANCO: "EM BRANCO",
             Estado.REVISAR: "REVISAR",
         }[questao_resultado.estado]
         cor_rotulo = VERDE if questao_resultado.acertou else (
             AMARELO if questao_resultado.estado is Estado.REVISAR else VERMELHO
         )
+        # A 789 px, com fonte 16, o rótulo mais longo termina por volta de
+        # 884 px — dentro dos 1000 px da folha. Rótulos maiores seriam cortados.
         pincel.text(
             (L.ALTERNATIVA_X[-1] * L.CANONICA_LARGURA + raio + 14, y),
             rotulo,
