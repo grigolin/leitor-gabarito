@@ -127,13 +127,13 @@ with esquerda:
         st.image(
             cv2.cvtColor(anotada, cv2.COLOR_BGR2RGB),
             caption="Verde: certa · vermelho: errada · amarelo: revisar · cinza: anulada",
-            use_container_width=True,
+            width="stretch",
         )
 
 with direita:
     st.subheader("Nome")
     recorte = N.recortar_nome(canonica)
-    st.image(recorte, caption="Recorte do nome", clamp=True, use_container_width=True)
+    st.image(recorte, caption="Recorte do nome", clamp=True, width="stretch")
     transcrito = N.transcrever(recorte)
     if transcrito is None:
         st.caption(

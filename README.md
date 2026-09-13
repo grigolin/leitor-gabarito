@@ -58,11 +58,10 @@ uv run pytest -q
 
 Os testes geram folhas sintéticas a partir do mesmo layout usado na produção,
 preenchem as respostas conhecidas e degradam as imagens como fotos de celular,
-com perspectiva, rotação, escala, gradiente de iluminação, sombra, desfoque,
-ruído e compressão JPEG. A integração verifica 200 folhas com respostas
-aleatórias, além de folhas de cabeça para baixo, escalas diferentes, questões
-em branco, marcações duplas, marcas ambíguas, iluminação difícil e fotos sem
-marcadores.
+com perspectiva, rotação, escala, gradiente de iluminação, sombra, desfoque e
+compressão JPEG. A integração verifica 200 folhas com respostas aleatórias,
+além de folhas de cabeça para baixo, escalas diferentes, questões em branco,
+marcações duplas, marcas ambíguas, iluminação difícil e fotos sem marcadores.
 
 Essa validação é sintética: ela confirma o algoritmo contra uma verdade
 conhecida, mas não substitui a demonstração com folhas impressas e fotos reais.

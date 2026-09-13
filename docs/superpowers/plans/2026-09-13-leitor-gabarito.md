@@ -28,7 +28,8 @@
 
 **Última atualização: 2026-09-13. Tasks 1–10 concluídas.**
 
-Trabalho na branch `implementacao` (publicada). `main` só tem a spec e o plano.
+Trabalho concluído nas branches `implementacao` e `main`, ambas publicadas. A
+`main` recebeu o fast-forward da `implementacao` no commit `732fc31`.
 
 | Task | Estado | Commits |
 |---|---|---|
@@ -51,6 +52,10 @@ download da folha e atualização do placar ao alterar a chave.
 
 As Tasks 3–10 foram executadas. O `layout.py` e o `gerar_folha.py` já existem e
 não devem ser reescritos a partir dos blocos de código deste plano.
+
+Os checklists e blocos de código das Tasks 3–10 abaixo são o roteiro histórico
+da execução. Para o estado final, prevalecem os arquivos no repositório, os
+commits da tabela acima e os 286 testes passando.
 
 ### Divergências entre o plano e o código já escrito
 
@@ -362,7 +367,7 @@ def retangulos_marcadores(largura=CANONICA_LARGURA, altura=CANONICA_ALTURA):
 - [x] **Step 5: Rodar para confirmar que passa**
 
 Run: `uv run pytest tests/test_layout.py -v`
-Expected: PASS, 7 testes.
+Expected: PASS, 8 testes.
 
 - [x] **Step 6: Commit**
 
@@ -636,7 +641,7 @@ git commit -m "feat: gerador da folha em branco (canônica, A4 e PDF)"
   - `degradar(pagina, rng, lado_maior=1600, brilho_escuro=0.55, sombra=True, qualidade_jpeg=60) -> np.ndarray` — foto falsa.
   - `foto(respostas, rng, **kwargs) -> np.ndarray` — atalho que encadeia os três.
 
-- [ ] **Step 1: Escrever o teste que falha**
+- [x] **Step 1: Escrever o teste que falha**
 
 ```python
 # tests/test_sintetico.py
@@ -709,12 +714,12 @@ def test_todos_os_estilos_desenham_algo(estilo):
     assert pagina.astype(int).sum() < limpa.astype(int).sum()
 ```
 
-- [ ] **Step 2: Rodar para confirmar que falha**
+- [x] **Step 2: Rodar para confirmar que falha**
 
 Run: `uv run pytest tests/test_sintetico.py -v`
 Expected: FAIL com `ModuleNotFoundError: No module named 'sintetico'`
 
-- [ ] **Step 3: Escrever `tests/sintetico.py`**
+- [x] **Step 3: Escrever `tests/sintetico.py`**
 
 ```python
 # tests/sintetico.py
@@ -893,12 +898,12 @@ def foto(respostas, rng, estilo="boa", nome="Ana Carolina de Souza", **kwargs):
     return degradar(pagina, rng, **kwargs)
 ```
 
-- [ ] **Step 4: Rodar para confirmar que passa**
+- [x] **Step 4: Rodar para confirmar que passa**
 
 Run: `uv run pytest tests/test_sintetico.py -v`
 Expected: PASS, 8 testes (3 diretos + 5 parametrizados por estilo).
 
-- [ ] **Step 5: Olhar uma foto sintética**
+- [x] **Step 5: Olhar uma foto sintética**
 
 ```bash
 uv run python -c "
@@ -912,7 +917,7 @@ open saida/foto_sintetica.png
 
 Deve parecer uma foto torta e mal iluminada de uma folha — não uma digitalização limpa. Se parecer limpa demais, a suíte inteira está testando fácil demais.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add tests/sintetico.py tests/test_sintetico.py
@@ -933,7 +938,7 @@ git commit -m "test: gerador sintético de folhas preenchidas e fotos degradadas
   - `class FolhaNaoEncontrada(Exception)`.
   - `alinhar(foto) -> np.ndarray` — recebe imagem BGR ou em tons de cinza, devolve a canônica 1000×1483 em tons de cinza. Levanta `FolhaNaoEncontrada` se qualquer um dos 4 IDs faltar.
 
-- [ ] **Step 1: Escrever o teste que falha**
+- [x] **Step 1: Escrever o teste que falha**
 
 O teste decisivo é o de **precisão**: depois de alinhar, o centro de uma bolinha marcada tem que cair onde o `layout` diz que ela está. É isso que todo o resto assume.
 
@@ -1024,12 +1029,12 @@ def test_aceita_imagem_colorida():
     assert A.alinhar(colorida).shape == (L.CANONICA_ALTURA, L.CANONICA_LARGURA)
 ```
 
-- [ ] **Step 2: Rodar para confirmar que falha**
+- [x] **Step 2: Rodar para confirmar que falha**
 
 Run: `uv run pytest tests/test_alinhar.py -v`
 Expected: FAIL com `ModuleNotFoundError: No module named 'gabarito.alinhar'`
 
-- [ ] **Step 3: Escrever `alinhar.py`**
+- [x] **Step 3: Escrever `alinhar.py`**
 
 ```python
 # src/gabarito/alinhar.py
@@ -1101,12 +1106,12 @@ def alinhar(foto):
     )
 ```
 
-- [ ] **Step 4: Rodar para confirmar que passa**
+- [x] **Step 4: Rodar para confirmar que passa**
 
 Run: `uv run pytest tests/test_alinhar.py -v`
-Expected: PASS, 18 testes.
+Expected: PASS, 19 testes.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/gabarito/alinhar.py tests/test_alinhar.py
@@ -1127,7 +1132,7 @@ git commit -m "feat: alinhamento da foto por marcadores ArUco"
   - `@dataclass(frozen=True) class Leitura` com os campos `preenchimento: float`, `confirmacao: float`, `marcada: bool`, `ambigua: bool`.
   - `ler_marcas(canonica) -> list[list[Leitura]]` — matriz 8×4, indexada `[questao][alternativa]`.
 
-- [ ] **Step 1: Escrever o teste que falha**
+- [x] **Step 1: Escrever o teste que falha**
 
 O teste que justifica este módulo é o da **iluminação**: a mesma marca, no lado claro e no lado escuro da página, tem que medir quase igual. É exatamente onde o método global descartado falhava.
 
@@ -1220,12 +1225,12 @@ def test_duas_marcas_na_mesma_questao_sao_ambas_lidas():
     assert not leituras[0][3].marcada
 ```
 
-- [ ] **Step 2: Rodar para confirmar que falha**
+- [x] **Step 2: Rodar para confirmar que falha**
 
 Run: `uv run pytest tests/test_ler_marcas.py -v`
 Expected: FAIL com `ModuleNotFoundError: No module named 'gabarito.ler_marcas'`
 
-- [ ] **Step 3: Escrever `ler_marcas.py`**
+- [x] **Step 3: Escrever `ler_marcas.py`**
 
 ```python
 # src/gabarito/ler_marcas.py
@@ -1322,14 +1327,14 @@ def ler_marcas(canonica):
     ]
 ```
 
-- [ ] **Step 4: Rodar para confirmar que passa**
+- [x] **Step 4: Rodar para confirmar que passa**
 
 Run: `uv run pytest tests/test_ler_marcas.py -v`
 Expected: PASS, 9 testes.
 
 Se `test_marca_parcial_fica_ambigua` falhar, ajuste `L.LIMIAR_VAZIA` / `L.LIMIAR_MARCADA` — e só eles, nunca o método de medição. Imprima os valores com `pytest -s` antes de mexer.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/gabarito/ler_marcas.py tests/test_ler_marcas.py
@@ -1352,7 +1357,7 @@ git commit -m "feat: medida de preenchimento relativa local das bolinhas"
   - `@dataclass(frozen=True) class Resultado`: `questoes: list[ResultadoQuestao]`, `acertos: int`, `total: int`.
   - `corrigir(leituras, chave) -> Resultado`. `chave` é uma sequência de 8 letras de `L.ALTERNATIVAS`; qualquer outra coisa levanta `ValueError`.
 
-- [ ] **Step 1: Escrever o teste que falha**
+- [x] **Step 1: Escrever o teste que falha**
 
 Este módulo não vê imagem nenhuma, então os testes constroem `Leitura` na mão. É de propósito: as regras de anulação são a parte do sistema que mais importa acertar e a que menos precisa de foto.
 
@@ -1489,12 +1494,12 @@ def test_chave_com_letra_invalida():
         corrigir(todas_em_branco(), ["E"] + CHAVE[1:])
 ```
 
-- [ ] **Step 2: Rodar para confirmar que falha**
+- [x] **Step 2: Rodar para confirmar que falha**
 
 Run: `uv run pytest tests/test_corrigir.py -v`
 Expected: FAIL com `ModuleNotFoundError: No module named 'gabarito.corrigir'`
 
-- [ ] **Step 3: Escrever `corrigir.py`**
+- [x] **Step 3: Escrever `corrigir.py`**
 
 ```python
 # src/gabarito/corrigir.py
@@ -1578,12 +1583,12 @@ def corrigir(leituras, chave):
     )
 ```
 
-- [ ] **Step 4: Rodar para confirmar que passa**
+- [x] **Step 4: Rodar para confirmar que passa**
 
 Run: `uv run pytest tests/test_corrigir.py -v`
 Expected: PASS, 12 testes.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/gabarito/corrigir.py tests/test_corrigir.py
@@ -1602,7 +1607,7 @@ git commit -m "feat: regras de correção, anulação e placar"
 - Consumes: tudo das Tasks 1–6.
 - Produces: nenhuma API nova. Produz a evidência de que o sistema funciona ponta a ponta, que é o que será mostrado na entrega.
 
-- [ ] **Step 1: Escrever os testes de integração**
+- [x] **Step 1: Escrever os testes de integração**
 
 ```python
 # tests/test_pipeline.py
@@ -1709,19 +1714,19 @@ def test_foto_sem_marcadores_nunca_produz_placar():
         A.alinhar(cortada)
 ```
 
-- [ ] **Step 2: Rodar o pipeline completo**
+- [x] **Step 2: Rodar o pipeline completo**
 
 Run: `uv run pytest tests/test_pipeline.py -v`
-Expected: PASS. São ~215 casos e leva ~1–3 minutos — a maior parte é o teste de propriedade.
+Expected: PASS. São 213 casos e leva ~1–3 minutos — a maior parte é o teste de propriedade.
 
 Se o teste de propriedade falhar em poucas sementes, **não afrouxe o teste**. Isole a semente, salve a canônica daquele caso (`cv2.imwrite`) e olhe. Os limiares em `layout.py` são o único lugar legítimo para ajustar.
 
-- [ ] **Step 3: Rodar a suíte inteira**
+- [x] **Step 3: Rodar a suíte inteira**
 
 Run: `uv run pytest -q`
 Expected: PASS, tudo.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add tests/test_pipeline.py
@@ -1742,7 +1747,7 @@ git commit -m "test: integração ponta a ponta, 200 folhas aleatórias e casos-
 
 Cores (BGR): verde `(0, 170, 0)` marcada e certa · vermelho `(0, 0, 220)` marcada e errada · amarelo `(0, 190, 220)` ambígua · cinza `(130, 130, 130)` contorno das bolinhas de questão anulada.
 
-- [ ] **Step 1: Escrever o teste que falha**
+- [x] **Step 1: Escrever o teste que falha**
 
 ```python
 # tests/test_anotar.py
@@ -1793,12 +1798,12 @@ def test_nao_altera_a_canonica_recebida():
     assert np.array_equal(canonica, antes)
 ```
 
-- [ ] **Step 2: Rodar para confirmar que falha**
+- [x] **Step 2: Rodar para confirmar que falha**
 
 Run: `uv run pytest tests/test_anotar.py -v`
 Expected: FAIL com `ModuleNotFoundError: No module named 'gabarito.anotar'`
 
-- [ ] **Step 3: Escrever `anotar.py`**
+- [x] **Step 3: Escrever `anotar.py`**
 
 ```python
 # src/gabarito/anotar.py
@@ -1886,12 +1891,12 @@ def anotar(canonica, leituras, resultado):
     return cv2.cvtColor(np.asarray(imagem), cv2.COLOR_RGB2BGR)
 ```
 
-- [ ] **Step 4: Rodar para confirmar que passa**
+- [x] **Step 4: Rodar para confirmar que passa**
 
 Run: `uv run pytest tests/test_anotar.py -v`
 Expected: PASS, 3 testes.
 
-- [ ] **Step 5: Olhar a imagem anotada**
+- [x] **Step 5: Olhar a imagem anotada**
 
 ```bash
 uv run python -c "
@@ -1920,7 +1925,7 @@ open saida/conferencia.png
 
 Esta é a imagem que vai na apresentação. Confira que os rótulos não saem da folha e que as cores batem com os estados impressos no terminal.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/gabarito/anotar.py tests/test_anotar.py
@@ -1943,7 +1948,7 @@ git commit -m "feat: imagem de conferência com o resultado sobreposto"
 
 Motivo do `None` em vez de exceção: o nome é o único ponto do sistema que depende de rede, e o placar não pode depender dele. Um erro aqui degrada a experiência, não quebra a correção.
 
-- [ ] **Step 1: Escrever o teste que falha**
+- [x] **Step 1: Escrever o teste que falha**
 
 A chamada de rede é substituída por um dublê. Não fazemos chamada real em teste.
 
@@ -2008,12 +2013,12 @@ def test_resposta_vazia_vira_none(monkeypatch):
     assert N.transcrever(N.recortar_nome(_canonica())) is None
 ```
 
-- [ ] **Step 2: Rodar para confirmar que falha**
+- [x] **Step 2: Rodar para confirmar que falha**
 
 Run: `uv run pytest tests/test_nome.py -v`
 Expected: FAIL com `ModuleNotFoundError: No module named 'gabarito.nome'`
 
-- [ ] **Step 3: Escrever `nome.py`**
+- [x] **Step 3: Escrever `nome.py`**
 
 ```python
 # src/gabarito/nome.py
@@ -2098,12 +2103,12 @@ def transcrever(recorte):
     return texto
 ```
 
-- [ ] **Step 4: Rodar para confirmar que passa**
+- [x] **Step 4: Rodar para confirmar que passa**
 
 Run: `uv run pytest tests/test_nome.py -v`
-Expected: PASS, 7 testes.
+Expected: PASS, 8 testes.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/gabarito/nome.py tests/test_nome.py
@@ -2122,7 +2127,7 @@ git commit -m "feat: recorte e transcrição do nome manuscrito"
 - Consumes: todos os módulos anteriores.
 - Produces: aplicação executável com `uv run streamlit run app.py`.
 
-- [ ] **Step 1: Escrever `app.py`**
+- [x] **Step 1: Escrever `app.py`**
 
 ```python
 # app.py
@@ -2203,13 +2208,13 @@ with esquerda:
     st.subheader("Conferência")
     st.image(
         cv2.cvtColor(anotar(canonica, leituras, resultado), cv2.COLOR_BGR2RGB),
-        use_container_width=True,
+        width="stretch",
     )
 
 with direita:
     st.subheader("Nome")
     recorte = N.recortar_nome(canonica)
-    st.image(recorte, clamp=True, use_container_width=True)
+    st.image(recorte, clamp=True, width="stretch")
     transcrito = N.transcrever(recorte)
     if transcrito is None:
         st.caption(
@@ -2242,7 +2247,7 @@ with direita:
     )
 ```
 
-- [ ] **Step 2: Escrever o `README.md`**
+- [x] **Step 2: Escrever o `README.md`**
 
 ```markdown
 # Leitor de gabarito
@@ -2291,12 +2296,12 @@ preenchimento pode ser lido como bolinha vazia; e a transcrição do nome não t
 como ser verificada pelo software.
 ```
 
-- [ ] **Step 3: Rodar a suíte inteira antes de olhar a interface**
+- [x] **Step 3: Rodar a suíte inteira antes de olhar a interface**
 
 Run: `uv run pytest -q`
 Expected: PASS, tudo.
 
-- [ ] **Step 4: Verificação manual da interface**
+- [x] **Step 4: Verificação manual da interface**
 
 ```bash
 uv run python -c "
@@ -2322,7 +2327,7 @@ Abra `http://localhost:8501`, envie `saida/demo.jpg` e confirme:
 
 Encerre com `Ctrl+C`.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add app.py README.md
