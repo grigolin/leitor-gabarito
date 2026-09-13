@@ -28,8 +28,9 @@
 
 **Última atualização: 2026-09-13. Tasks 1–10 concluídas.**
 
-Trabalho concluído nas branches `implementacao` e `main`, ambas publicadas. A
-`main` recebeu o fast-forward da `implementacao` no commit `732fc31`.
+O trabalho das Tasks 1–10 foi concluído e publicado nas branches
+`implementacao` e `main` até o commit `0f78388`. A migração posterior da Task 9
+para Gemini está registrada no commit `14973c8` da `main`.
 
 | Task | Estado | Commits |
 |---|---|---|
@@ -48,7 +49,8 @@ Suíte atual: 286 testes passando (`uv run pytest -q`). A verificação manual d
 Streamlit confirmou upload sintético, placar `6/8`, anulação, questão em branco,
 download da folha e atualização do placar ao alterar a chave.
 
-Depois da execução original, a Task 9 foi migrada de Anthropic para Gemini: o
+Depois da execução original, a Task 9 foi migrada de Anthropic para Gemini no
+commit `14973c8`: o
 projeto usa `google-genai`, `GEMINI_API_KEY` e o modelo `gemini-2.5-flash`. A
 suíte continua com 286 testes passando e uma chamada manual real com uma folha
 sintética retornou corretamente `Ana Carolina de Souza`.
