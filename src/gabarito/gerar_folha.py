@@ -5,6 +5,7 @@ versão de tela (canônica, 1000×1483) e a versão de impressão (A4 a 300 DPI)
 sejam literalmente o mesmo desenho em escalas diferentes.
 """
 
+import os
 from pathlib import Path
 
 import cv2
@@ -21,12 +22,43 @@ _CAMINHOS_DE_FONTE = (
 
 
 def fonte(tamanho_px):
-    """Fonte escalável com acentuação. Pillow ≥10.1 para o fallback."""
+    """Fonte TrueType/OpenType escalável, com acentuação.
+
+    Não há fallback silencioso para `ImageFont.load_default()`: essa fonte
+    embutida do Pillow não tem glifos acentuados — "ã", "õ" e "ç" caem todos
+    na mesma caixa de "glifo ausente" — que é exatamente a corrupção que
+    motivou desenhar com Pillow em vez de `cv2.putText`. Se nenhum caminho
+    candidato existir, falha alto com `RuntimeError` em vez de desenhar texto
+    quebrado silenciosamente.
+
+    A variável de ambiente `GABARITO_FONTE`, se definida, tem prioridade
+    sobre os caminhos padrão — deve apontar para um arquivo de fonte
+    existente.
+    """
     tamanho = max(8, int(round(tamanho_px)))
-    for caminho in _CAMINHOS_DE_FONTE:
+
+    candidatos = []
+    caminho_env = os.environ.get("GABARITO_FONTE")
+    if caminho_env:
+        if not Path(caminho_env).exists():
+            raise RuntimeError(
+                f"GABARITO_FONTE aponta para um arquivo inexistente: "
+                f"{caminho_env!r}. Corrija a variável de ambiente ou remova-a "
+                "para usar os caminhos padrão."
+            )
+        candidatos.append(caminho_env)
+    candidatos.extend(_CAMINHOS_DE_FONTE)
+
+    for caminho in candidatos:
         if Path(caminho).exists():
             return ImageFont.truetype(caminho, tamanho)
-    return ImageFont.load_default(size=tamanho)
+
+    raise RuntimeError(
+        "Nenhuma fonte TrueType com acentuação foi encontrada. Caminhos "
+        "tentados: " + ", ".join(candidatos) + ". Instale uma dessas fontes "
+        "ou defina a variável de ambiente GABARITO_FONTE apontando para um "
+        "arquivo .ttf/.otf válido."
+    )
 
 
 def _colar_marcadores(imagem, largura, altura):
@@ -127,6 +159,4 @@ def gerar_pdf(caminho):
     """Salva a folha em A4 a 300 DPI, pronta para imprimir."""
     caminho = Path(caminho)
     caminho.parent.mkdir(parents=True, exist_ok=True)
-    Image.fromarray(desenhar_a4(2480)).convert("RGB").save(
-        caminho, "PDF", resolution=300.0
-    )
+    Image.fromarray(desenhar_a4(2480)).save(caminho, "PDF", resolution=300.0)

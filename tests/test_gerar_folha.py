@@ -64,3 +64,23 @@ def test_gera_pdf(tmp_path):
     gerar_folha.gerar_pdf(destino)
     assert destino.exists()
     assert destino.stat().st_size > 5_000
+
+
+def test_fonte_falha_alto_quando_nenhum_caminho_existe(monkeypatch):
+    monkeypatch.delenv("GABARITO_FONTE", raising=False)
+    caminhos_inexistentes = ("/caminho/que/nao/existe/fonte.ttf",)
+    monkeypatch.setattr(gerar_folha, "_CAMINHOS_DE_FONTE", caminhos_inexistentes)
+
+    with pytest.raises(RuntimeError) as excinfo:
+        gerar_folha.fonte(20)
+
+    assert caminhos_inexistentes[0] in str(excinfo.value)
+
+
+def test_fonte_falha_alto_quando_env_aponta_para_arquivo_inexistente(monkeypatch):
+    monkeypatch.setenv("GABARITO_FONTE", "/tambem/nao/existe.ttf")
+
+    with pytest.raises(RuntimeError) as excinfo:
+        gerar_folha.fonte(20)
+
+    assert "/tambem/nao/existe.ttf" in str(excinfo.value)
