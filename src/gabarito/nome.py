@@ -14,6 +14,7 @@ from PIL import Image
 from . import layout as L
 
 MODELO = "gemini-2.5-flash"
+# Salvaguarda local para não enviar recortes desnecessariamente grandes.
 LADO_MAIOR_MAXIMO = 2576
 INSTRUCAO = (
     "Você transcreve nomes manuscritos de folhas de prova. "

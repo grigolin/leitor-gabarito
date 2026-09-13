@@ -27,7 +27,7 @@ def test_o_recorte_contem_tinta():
     assert N.recortar_nome(_canonica()).min() < 150
 
 
-def test_recorte_cabe_no_limite_da_api():
+def test_recorte_nao_fica_excessivamente_grande():
     assert max(N.recortar_nome(_canonica()).shape) <= N.LADO_MAIOR_MAXIMO
 
 

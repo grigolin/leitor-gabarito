@@ -1989,7 +1989,7 @@ def test_o_recorte_contem_tinta():
     assert N.recortar_nome(_canonica()).min() < 150
 
 
-def test_recorte_cabe_no_limite_da_api():
+def test_recorte_nao_fica_excessivamente_grande():
     assert max(N.recortar_nome(_canonica()).shape) <= N.LADO_MAIOR_MAXIMO
 
 
@@ -2044,7 +2044,7 @@ from PIL import Image
 from . import layout as L
 
 MODELO = "gemini-2.5-flash"
-LADO_MAIOR_MAXIMO = 2576  # limite de resolução da API de visão
+LADO_MAIOR_MAXIMO = 2576  # salvaguarda local do tamanho do recorte
 INSTRUCAO = (
     "Você transcreve nomes manuscritos de folhas de prova. "
     "O nome pode estar em letra cursiva ou de forma. "

@@ -181,8 +181,9 @@ padrão pré-preenchido. Alterável ao vivo durante a demonstração.
 ## 7. Leitura do nome
 
 O retângulo do nome é recortado da imagem canônica (no máximo 1000 px de lado maior,
-bem abaixo do limite de 2576 px da API — não precisa redimensionar) e enviado ao
-`gemini-2.5-flash` para transcrição, usando a variável `GEMINI_API_KEY`.
+com uma salvaguarda local de 2576 px) e enviado ao `gemini-2.5-flash` para
+transcrição, usando a variável `GEMINI_API_KEY`. O PNG fica muito abaixo do limite
+de 20 MB para dados de imagem inline da API.
 
 Sem chave de API, sem internet, ou erro na chamada: o app exibe o recorte e deixa o
 campo editável. O restante do fluxo continua funcionando. **O placar nunca depende do
