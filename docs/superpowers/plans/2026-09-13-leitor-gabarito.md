@@ -55,6 +55,10 @@ projeto usa `google-genai`, `GEMINI_API_KEY` e o modelo `gemini-2.5-flash`. A
 suíte continua com 286 testes passando e uma chamada manual real com uma folha
 sintética retornou corretamente `Ana Carolina de Souza`.
 
+O kit de demonstração sem papel é recriado por `scripts/gerar_demos.py` e está
+documentado em `docs/demos.md`. As imagens e PDFs gerados ficam em `saida/demos/`,
+uma saída local ignorada pelo Git.
+
 ### Para retomar
 
 As Tasks 3–10 foram executadas. O `layout.py` e o `gerar_folha.py` já existem e

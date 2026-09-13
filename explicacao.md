@@ -295,7 +295,7 @@ A suíte atual tem 286 testes:
 Comando:
 
 ```bash
-UV_CACHE_DIR=/private/tmp/visao-uv-cache uv run pytest -q
+uv run pytest -q
 ```
 
 Resultado validado:
@@ -401,7 +401,7 @@ seguro.
 
 ```bash
 uv sync
-UV_CACHE_DIR=/private/tmp/visao-uv-cache uv run streamlit run app.py
+uv run streamlit run app.py
 ```
 
 Abra <http://localhost:8501>.
@@ -409,7 +409,7 @@ Abra <http://localhost:8501>.
 Para preparar uma demonstração completa sem papel, gere o kit de cenários:
 
 ```bash
-UV_CACHE_DIR=/private/tmp/visao-uv-cache uv run python scripts/gerar_demos.py
+uv run python scripts/gerar_demos.py
 ```
 
 Os arquivos ficam em `saida/demos/`. Envie os arquivos `*_entrada.jpg` para a
@@ -419,7 +419,7 @@ esperado. A tabela e os detalhes estão em [`docs/demos.md`](docs/demos.md).
 Se quiser testar sem papel, gere uma foto sintética:
 
 ```bash
-UV_CACHE_DIR=/private/tmp/visao-uv-cache uv run python -c "
+uv run python -c "
 import sys, cv2, numpy as np
 sys.path.insert(0, 'tests')
 import sintetico

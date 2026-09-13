@@ -4,13 +4,21 @@ Aplicação Streamlit que lê uma foto de um gabarito preenchido à mão com 8
 questões e 4 alternativas por questão. Questões com mais de uma alternativa
 marcada são anuladas.
 
-## Uso
+## Instalação e execução
 
-Instale as dependências e inicie a interface:
+Instale as dependências com `uv` e inicie a interface:
 
 ```bash
 uv sync
 uv run streamlit run app.py
+```
+
+Abra <http://localhost:8501>. Sem `GEMINI_API_KEY`, a leitura das bolinhas
+continua funcionando e o nome fica disponível para digitação manual. Para
+ativar a transcrição opcional do nome:
+
+```bash
+GEMINI_API_KEY="sua-chave" uv run streamlit run app.py
 ```
 
 Na barra lateral, escolha a chave de respostas e baixe a folha em PDF. Imprima
@@ -27,9 +35,14 @@ Se nenhuma fonte TrueType com acentuação estiver nos caminhos padrão, defina
 `GABARITO_FONTE` apontando para um arquivo `.ttf` ou `.otf`. O gerador falha
 explicitamente nesse caso para não produzir uma folha com texto corrompido.
 
-Para demonstrar sem papel impresso, execute `uv run python
-scripts/gerar_demos.py` e envie os arquivos `*_entrada.jpg` de `saida/demos/`
-para a interface. O roteiro dos cinco cenários está em
+Para demonstrar sem papel impresso, execute:
+
+```bash
+uv run python scripts/gerar_demos.py
+```
+
+Depois envie os arquivos `*_entrada.jpg` de `saida/demos/` para a interface. O
+roteiro dos cinco cenários está em
 [`docs/demos.md`](docs/demos.md).
 
 ## Funcionamento
@@ -59,6 +72,15 @@ Execute a suíte completa com:
 
 ```bash
 uv run pytest -q
+```
+
+Resultado atual: **286 testes passando**.
+
+Para investigar uma parte específica:
+
+```bash
+uv run pytest tests/test_pipeline.py -q
+uv run pytest tests/test_nome.py -q
 ```
 
 Os testes geram folhas sintéticas a partir do mesmo layout usado na produção,

@@ -3,7 +3,7 @@
 Para gerar ou recriar os materiais visuais:
 
 ```bash
-UV_CACHE_DIR=/private/tmp/visao-uv-cache uv run python scripts/gerar_demos.py
+uv run python scripts/gerar_demos.py
 ```
 
 Os arquivos são criados em `saida/demos/`, que é uma pasta local de saída e
