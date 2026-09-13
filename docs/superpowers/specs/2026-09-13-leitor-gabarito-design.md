@@ -79,7 +79,7 @@ sistema não é usado.
 | opencv-contrib-python | 5.0.0.93 (`cv2.__version__` = 5.0.0) |
 | numpy | 2.5.3 |
 | streamlit | 1.63.0 |
-| anthropic | 1.5.0 |
+| google-genai | 2.23.0 |
 | pytest | 9.1.1 |
 | pillow | 12.3.0 |
 
@@ -182,7 +182,7 @@ padrão pré-preenchido. Alterável ao vivo durante a demonstração.
 
 O retângulo do nome é recortado da imagem canônica (no máximo 1000 px de lado maior,
 bem abaixo do limite de 2576 px da API — não precisa redimensionar) e enviado ao
-`claude-sonnet-5` para transcrição. Custo da ordem de US$ 0,001 por folha.
+`gemini-2.5-flash` para transcrição, usando a variável `GEMINI_API_KEY`.
 
 Sem chave de API, sem internet, ou erro na chamada: o app exibe o recorte e deixa o
 campo editável. O restante do fluxo continua funcionando. **O placar nunca depende do

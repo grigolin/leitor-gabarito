@@ -138,7 +138,7 @@ with direita:
     if transcrito is None:
         st.caption(
             "Não foi possível transcrever automaticamente (sem "
-            "ANTHROPIC_API_KEY, sem rede ou nome ilegível). Digite o nome abaixo."
+            "GEMINI_API_KEY, sem rede ou nome ilegível). Digite o nome abaixo."
         )
     st.text_input("Nome do aluno", value=transcrito or "")
 

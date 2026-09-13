@@ -215,8 +215,8 @@ interpretou e por quê.
 ## 10. Leitura do nome
 
 O módulo [`src/gabarito/nome.py`](src/gabarito/nome.py) recorta a região
-`NOME_RECT` da imagem canônica e, se houver `ANTHROPIC_API_KEY`, envia o recorte
-para o modelo configurado (`claude-sonnet-5`).
+`NOME_RECT` da imagem canônica e, se houver `GEMINI_API_KEY`, envia o recorte
+para o modelo configurado (`gemini-2.5-flash`).
 
 Características importantes:
 
@@ -227,7 +227,9 @@ Características importantes:
 - o recorte continua visível para conferência humana;
 - o campo do nome pode ser editado na UI.
 
-Nos testes, a API é substituída por dublês; não é feita chamada real.
+Nos testes automatizados, a API é substituída por dublês para não depender de
+rede nem consumir quota. Além disso, foi feita uma chamada manual real com uma
+folha sintética; o Gemini retornou `Ana Carolina de Souza` para o nome impresso.
 
 ## 11. Por que escolhemos esses métodos
 
@@ -375,8 +377,11 @@ imagens sintéticas e não reproduzem perfeitamente:
 - diferentes tipos de caneta;
 - enquadramentos reais de celular.
 
-Também não foi feita uma transcrição real do nome usando uma chave de API. A
-integração é coberta por testes simulados e o fallback é seguro.
+Foi feita uma chamada real de validação ao Gemini com uma chave fornecida para o
+teste, usando um nome sintético renderizado na folha. Isso confirma a integração
+de rede e o envio da imagem, mas não substitui o teste com nome manuscrito em
+papel real. A integração também é coberta por testes simulados e o fallback é
+seguro.
 
 ## 16. Limitações para mencionar na apresentação
 

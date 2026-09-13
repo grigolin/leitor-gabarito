@@ -5,7 +5,6 @@ falha de forma segura: qualquer problema devolve ``None`` e não interrompe a
 correção da folha.
 """
 
-import base64
 import io
 import os
 
@@ -14,7 +13,7 @@ from PIL import Image
 
 from . import layout as L
 
-MODELO = "claude-sonnet-5"
+MODELO = "gemini-2.5-flash"
 LADO_MAIOR_MAXIMO = 2576
 INSTRUCAO = (
     "Você transcreve nomes manuscritos de folhas de prova. "
@@ -40,39 +39,30 @@ def recortar_nome(canonica):
     )
 
 
-def _para_base64(recorte):
+def _para_png(recorte):
     buffer = io.BytesIO()
     Image.fromarray(np.asarray(recorte)).convert("L").save(buffer, "PNG")
-    return base64.standard_b64encode(buffer.getvalue()).decode("utf-8")
+    return buffer.getvalue()
 
 
 def _chamar_api(recorte):
-    """Envia o recorte para a API Anthropic e devolve o texto bruto."""
-    import anthropic
+    """Envia o recorte para a API Gemini e devolve o texto bruto."""
+    from google import genai
+    from google.genai import types
 
-    cliente = anthropic.Anthropic()
-    resposta = cliente.messages.create(
+    cliente = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
+    resposta = cliente.models.generate_content(
         model=MODELO,
-        max_tokens=256,
-        system=INSTRUCAO,
-        messages=[
-            {
-                "role": "user",
-                "content": [
-                    {
-                        "type": "image",
-                        "source": {
-                            "type": "base64",
-                            "media_type": "image/png",
-                            "data": _para_base64(recorte),
-                        },
-                    },
-                    {"type": "text", "text": "Transcreva o nome manuscrito."},
-                ],
-            }
+        contents=[
+            types.Part.from_bytes(data=_para_png(recorte), mime_type="image/png"),
+            f"{INSTRUCAO} Transcreva o nome manuscrito.",
         ],
+        config=types.GenerateContentConfig(
+            temperature=0,
+            max_output_tokens=256,
+        ),
     )
-    return resposta.content[0].text
+    return resposta.text or ""
 
 
 def transcrever(recorte):
@@ -83,7 +73,7 @@ def transcrever(recorte):
     exceções para o restante do pipeline.
     """
     try:
-        if not os.environ.get("ANTHROPIC_API_KEY"):
+        if not os.environ.get("GEMINI_API_KEY"):
             return None
         texto = (_chamar_api(recorte) or "").strip()
         if not texto or texto.upper() == "ILEGÍVEL":

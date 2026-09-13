@@ -18,7 +18,7 @@ em A4 sem “ajustar à página”, preencha as bolinhas por inteiro e fotografe
 folha completa. A imagem pode ser enviada como arquivo ou capturada pela
 webcam; os quatro marcadores ArUco dos cantos precisam estar visíveis.
 
-Para tentar transcrever o nome manuscrito, defina `ANTHROPIC_API_KEY` no
+Para tentar transcrever o nome manuscrito, defina `GEMINI_API_KEY` no
 ambiente antes de iniciar o app. A transcrição é opcional: sem chave, sem rede,
 com erro na API ou com resposta ilegível, o recorte continua visível e o nome
 pode ser digitado no campo editável. O placar não depende da transcrição.

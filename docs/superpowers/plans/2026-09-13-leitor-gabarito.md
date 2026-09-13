@@ -6,7 +6,7 @@
 
 **Architecture:** Quatro marcadores ArUco nos cantos da folha permitem uma homografia que converte qualquer foto numa imagem canônica fixa de 1000×1483 px. A partir daí as 32 bolinhas estão em coordenadas conhecidas e basta medir o quanto cada uma está escura — não é preciso detectar bolinha nenhuma. A medida é relativa ao papel ao redor da própria bolinha, o que a torna imune a iluminação desigual. Toda a geometria vive num único módulo (`layout.py`) importado tanto pelo gerador da folha quanto pelo leitor.
 
-**Tech Stack:** Python 3.13, opencv-contrib-python 5.0 (API `ArucoDetector`), numpy, Pillow, Streamlit, SDK `anthropic`, pytest, ambiente gerido por `uv`.
+**Tech Stack:** Python 3.13, opencv-contrib-python 5.0 (API `ArucoDetector`), numpy, Pillow, Streamlit, SDK `google-genai`, pytest, ambiente gerido por `uv`.
 
 **Spec:** `docs/superpowers/specs/2026-09-13-leitor-gabarito-design.md`
 
@@ -47,6 +47,11 @@ Trabalho concluído nas branches `implementacao` e `main`, ambas publicadas. A
 Suíte atual: 286 testes passando (`uv run pytest -q`). A verificação manual do
 Streamlit confirmou upload sintético, placar `6/8`, anulação, questão em branco,
 download da folha e atualização do placar ao alterar a chave.
+
+Depois da execução original, a Task 9 foi migrada de Anthropic para Gemini: o
+projeto usa `google-genai`, `GEMINI_API_KEY` e o modelo `gemini-2.5-flash`. A
+suíte continua com 286 testes passando e uma chamada manual real com uma folha
+sintética retornou corretamente `Ana Carolina de Souza`.
 
 ### Para retomar
 
@@ -154,7 +159,7 @@ dependencies = [
     "numpy>=2.5.3",
     "pillow>=12.3.0",
     "streamlit>=1.63.0",
-    "anthropic>=1.5.0",
+    "google-genai>=1.0.0",
 ]
 
 [dependency-groups]
@@ -1987,12 +1992,12 @@ def test_recorte_cabe_no_limite_da_api():
 
 
 def test_sem_chave_de_api_devolve_none(monkeypatch):
-    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
     assert N.transcrever(N.recortar_nome(_canonica())) is None
 
 
 def test_erro_na_api_devolve_none_sem_levantar(monkeypatch):
-    monkeypatch.setenv("ANTHROPIC_API_KEY", "chave-de-teste")
+    monkeypatch.setenv("GEMINI_API_KEY", "chave-de-teste")
 
     def explodir(*_, **__):
         raise RuntimeError("rede caiu")
@@ -2002,13 +2007,13 @@ def test_erro_na_api_devolve_none_sem_levantar(monkeypatch):
 
 
 def test_transcricao_bem_sucedida(monkeypatch):
-    monkeypatch.setenv("ANTHROPIC_API_KEY", "chave-de-teste")
+    monkeypatch.setenv("GEMINI_API_KEY", "chave-de-teste")
     monkeypatch.setattr(N, "_chamar_api", lambda _: "  Ana Carolina de Souza\n")
     assert N.transcrever(N.recortar_nome(_canonica())) == "Ana Carolina de Souza"
 
 
 def test_resposta_vazia_vira_none(monkeypatch):
-    monkeypatch.setenv("ANTHROPIC_API_KEY", "chave-de-teste")
+    monkeypatch.setenv("GEMINI_API_KEY", "chave-de-teste")
     monkeypatch.setattr(N, "_chamar_api", lambda _: "   ")
     assert N.transcrever(N.recortar_nome(_canonica())) is None
 ```
@@ -2028,7 +2033,6 @@ Expected: FAIL com `ModuleNotFoundError: No module named 'gabarito.nome'`
 `None` e o sistema continua, mostrando o recorte para conferência humana.
 """
 
-import base64
 import io
 import os
 
@@ -2037,7 +2041,7 @@ from PIL import Image
 
 from . import layout as L
 
-MODELO = "claude-sonnet-5"
+MODELO = "gemini-2.5-flash"
 LADO_MAIOR_MAXIMO = 2576  # limite de resolução da API de visão
 INSTRUCAO = (
     "Você transcreve nomes manuscritos de folhas de prova. "
@@ -2056,43 +2060,34 @@ def recortar_nome(canonica):
     ]
 
 
-def _para_base64(recorte):
+def _para_png(recorte):
     buffer = io.BytesIO()
-    Image.fromarray(recorte).save(buffer, "PNG")
-    return base64.standard_b64encode(buffer.getvalue()).decode("utf-8")
+    Image.fromarray(recorte).convert("L").save(buffer, "PNG")
+    return buffer.getvalue()
 
 
 def _chamar_api(recorte):
-    import anthropic
+    from google import genai
+    from google.genai import types
 
-    cliente = anthropic.Anthropic()
-    resposta = cliente.messages.create(
+    cliente = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
+    resposta = cliente.models.generate_content(
         model=MODELO,
-        max_tokens=256,
-        system=INSTRUCAO,
-        messages=[
-            {
-                "role": "user",
-                "content": [
-                    {
-                        "type": "image",
-                        "source": {
-                            "type": "base64",
-                            "media_type": "image/png",
-                            "data": _para_base64(recorte),
-                        },
-                    },
-                    {"type": "text", "text": "Transcreva o nome manuscrito."},
-                ],
-            }
+        contents=[
+            types.Part.from_bytes(data=_para_png(recorte), mime_type="image/png"),
+            f"{INSTRUCAO} Transcreva o nome manuscrito.",
         ],
+        config=types.GenerateContentConfig(
+            temperature=0,
+            max_output_tokens=256,
+        ),
     )
-    return resposta.content[0].text
+    return resposta.text or ""
 
 
 def transcrever(recorte):
     """Texto do nome, ou None se não for possível. Nunca levanta exceção."""
-    if not os.environ.get("ANTHROPIC_API_KEY"):
+    if not os.environ.get("GEMINI_API_KEY"):
         return None
     try:
         texto = (_chamar_api(recorte) or "").strip()
@@ -2219,7 +2214,7 @@ with direita:
     if transcrito is None:
         st.caption(
             "Não foi possível transcrever automaticamente "
-            "(sem ANTHROPIC_API_KEY ou sem rede). Digite o nome abaixo."
+            "(sem GEMINI_API_KEY ou sem rede). Digite o nome abaixo."
         )
     st.text_input("Nome do aluno", value=transcrito or "")
 
@@ -2273,7 +2268,7 @@ uv run streamlit run app.py
 Na barra lateral, baixe a folha em PDF, imprima em A4 (sem "ajustar à página"),
 preencha e fotografe com os quatro cantos visíveis.
 
-Para transcrever o nome manuscrito, defina `ANTHROPIC_API_KEY`. Sem ela, o
+Para transcrever o nome manuscrito, defina `GEMINI_API_KEY`. Sem ela, o
 software mostra o recorte do nome e deixa o campo para digitação — a correção
 funciona normalmente.
 

@@ -32,12 +32,12 @@ def test_recorte_cabe_no_limite_da_api():
 
 
 def test_sem_chave_de_api_devolve_none(monkeypatch):
-    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
     assert N.transcrever(N.recortar_nome(_canonica())) is None
 
 
 def test_erro_na_api_devolve_none_sem_levantar(monkeypatch):
-    monkeypatch.setenv("ANTHROPIC_API_KEY", "chave-de-teste")
+    monkeypatch.setenv("GEMINI_API_KEY", "chave-de-teste")
 
     def explodir(*_, **__):
         raise RuntimeError("rede caiu")
@@ -47,13 +47,13 @@ def test_erro_na_api_devolve_none_sem_levantar(monkeypatch):
 
 
 def test_transcricao_bem_sucedida(monkeypatch):
-    monkeypatch.setenv("ANTHROPIC_API_KEY", "chave-de-teste")
+    monkeypatch.setenv("GEMINI_API_KEY", "chave-de-teste")
     monkeypatch.setattr(N, "_chamar_api", lambda _: "  Ana Carolina de Souza\n")
     assert N.transcrever(N.recortar_nome(_canonica())) == "Ana Carolina de Souza"
 
 
 def test_resposta_vazia_ou_ilegivel_vira_none(monkeypatch):
-    monkeypatch.setenv("ANTHROPIC_API_KEY", "chave-de-teste")
+    monkeypatch.setenv("GEMINI_API_KEY", "chave-de-teste")
     monkeypatch.setattr(N, "_chamar_api", lambda _: "   ")
     assert N.transcrever(N.recortar_nome(_canonica())) is None
     monkeypatch.setattr(N, "_chamar_api", lambda _: " ILEGÍVEL ")
@@ -61,6 +61,6 @@ def test_resposta_vazia_ou_ilegivel_vira_none(monkeypatch):
 
 
 def test_falha_de_importacao_da_api_vira_none(monkeypatch):
-    monkeypatch.setenv("ANTHROPIC_API_KEY", "chave-de-teste")
+    monkeypatch.setenv("GEMINI_API_KEY", "chave-de-teste")
     monkeypatch.setattr(N, "_chamar_api", lambda _: (_ for _ in ()).throw(ImportError()))
     assert N.transcrever(N.recortar_nome(_canonica())) is None
