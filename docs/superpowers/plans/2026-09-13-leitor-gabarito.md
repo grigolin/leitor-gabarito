@@ -24,6 +24,79 @@
 
 ---
 
+## Estado da execução
+
+**Última atualização: 2026-09-13. Tasks 1 e 2 concluídas; Tasks 3–10 não iniciadas.**
+
+Trabalho na branch `implementacao` (publicada). `main` só tem a spec e o plano.
+
+| Task | Estado | Commits |
+|---|---|---|
+| 1 — Projeto e geometria | ✅ concluída | `0a5fae3` |
+| 2 — Gerar a folha em branco | ✅ concluída | `7b2deca`, `9dbb24f` |
+| 3–10 | ⬜ não iniciadas | — |
+
+Suíte atual: 14 testes passando (`uv run pytest -q`).
+
+### Para retomar
+
+Execute a Task 3 em diante normalmente. O `layout.py` e o `gerar_folha.py` já
+existem e não devem ser reescritos a partir dos blocos de código deste plano.
+
+### Divergências entre o plano e o código já escrito
+
+Os blocos de código das Tasks 1 e 2 abaixo são o texto **original** do plano. O
+código realmente em `src/` diverge dele em quatro pontos, todos decididos durante
+a execução, todos deliberados. **O código é a verdade; os blocos abaixo ficam como
+registro histórico.**
+
+1. **`fonte()` não tem mais fallback silencioso.** O plano caía em
+   `ImageFont.load_default()` quando nenhuma fonte do sistema era encontrada. Medimos
+   e essa fonte colapsa `ã`, `õ` e `ç` no mesmo glifo de "ausente" — exatamente a
+   corrupção que motivou usar Pillow em vez de `cv2.putText`. Agora levanta
+   `RuntimeError` listando os caminhos tentados, e aceita a variável de ambiente
+   `GABARITO_FONTE` como override de maior prioridade.
+   **Consequência para as Tasks 3 e 8, que usam `fonte()`:** ela pode levantar
+   exceção. Em máquina sem Arial nem DejaVu, defina `GABARITO_FONTE`.
+2. **`_colar_marcadores` calcula `lado` uma única vez** e deriva as posições dos
+   quatro cantos desse mesmo inteiro, em vez de pegar `x0`/`y0` dos floats de
+   `L.retangulos_marcadores()`. Os dois arredondamentos podiam discordar em 1px nos
+   marcadores da direita e de baixo, e o `paste` do PIL cortaria uma coluna em
+   silêncio. `L.retangulos_marcadores()` continua existindo, usada pelos testes da
+   Task 1.
+3. **`test_as_32_bolinhas_estao_vazias` usa `raio = int(L.BOLINHA_RAIO * 0.5)`**, não
+   `int(L.BOLINHA_RAIO * L.BOLINHA_INSET)`. Com meio-lado 14 os cantos do quadrado
+   ficam a 19,8px do centro e cruzam o contorno impresso (raio 18), derrubando a média
+   para ~245 — perto demais do limite de 240 do próprio teste.
+4. **`test_os_quatro_marcadores_...` compara com `==`, não com `is`.** `cx` e `meio_x`
+   vêm de `ndarray.mean()`, então a comparação devolve `numpy.bool_`, que nunca é
+   idêntico a `True`/`False` do Python — o teste como estava no plano falharia sempre,
+   mesmo com a geometria correta.
+
+Fora isso, `gerar_pdf` salva a imagem em modo `L` direto (o plano convertia para RGB
+sem necessidade, triplicando o raster embutido).
+
+### Pendências menores, deferidas de propósito
+
+- `import pytest` não usado em `tests/test_layout.py` (ruff F401).
+- `pythonpath = ["tests"]` no pytest ini é redundante com o install editável.
+- Em resoluções diferentes da padrão, as margens da página em `desenhar_a4` podem
+  diferir 1px entre os lados opostos. Só estética; não afeta a geometria canônica.
+- `_colar_marcadores` recria o dicionário ArUco e recarrega a fonte a cada chamada de
+  `desenhar()`.
+
+### Revisão visual da folha (feita, mas não automatizada)
+
+A folha gerada foi inspecionada: os 4 marcadores estão nos cantos, a acentuação de
+"questão" sai correta, a caixa do nome não encosta nos marcadores e as 8 linhas
+A–D estão alinhadas. Sugestões cosméticas ainda não aplicadas, à espera de decisão:
+o título "GABARITO" está abaixo da caixa de nome em vez de acima; as letras A/B/C/D
+se repetem em todas as linhas em vez de aparecerem uma vez como cabeçalho.
+
+**Nada disso foi validado em papel impresso.** Ver seção 10 da spec.
+
+---
+
 ## Estrutura de arquivos
 
 | Arquivo | Responsabilidade |
@@ -52,7 +125,7 @@
 - Consumes: nada.
 - Produces: o módulo `gabarito.layout` (importado como `L` em todo o resto), com as constantes listadas abaixo e as funções `centro_bolinha(questao, alternativa, largura=..., altura=...) -> tuple[float, float]` e `retangulos_marcadores(largura=..., altura=...) -> dict[int, tuple[float, float, float, float]]`.
 
-- [ ] **Step 1: Criar o projeto e o ambiente**
+- [x] **Step 1: Criar o projeto e o ambiente**
 
 ```bash
 cd /Users/grigolin/Programming/visao
@@ -101,7 +174,7 @@ uv sync
 
 Expected: `uv sync` resolve tudo com wheels prontas, nada compila da fonte.
 
-- [ ] **Step 2: Escrever o teste que falha**
+- [x] **Step 2: Escrever o teste que falha**
 
 Estes testes existem porque um erro de geometria aqui é silencioso: a folha continua bonita, mas o leitor mede o lugar errado. O teste de sobreposição com os marcadores já pegou um bug real durante o design (a faixa do nome invadia o marcador do canto).
 
@@ -191,12 +264,12 @@ def test_chave_de_limiares_coerente():
     assert 0.0 < L.BOLINHA_INSET < 1.0 < L.ANEL_INTERNO < L.ANEL_EXTERNO
 ```
 
-- [ ] **Step 3: Rodar para confirmar que falha**
+- [x] **Step 3: Rodar para confirmar que falha**
 
 Run: `uv run pytest tests/test_layout.py -v`
 Expected: FAIL com `ModuleNotFoundError: No module named 'gabarito.layout'`
 
-- [ ] **Step 4: Escrever `layout.py`**
+- [x] **Step 4: Escrever `layout.py`**
 
 ```python
 # src/gabarito/layout.py
@@ -277,12 +350,12 @@ def retangulos_marcadores(largura=CANONICA_LARGURA, altura=CANONICA_ALTURA):
     }
 ```
 
-- [ ] **Step 5: Rodar para confirmar que passa**
+- [x] **Step 5: Rodar para confirmar que passa**
 
 Run: `uv run pytest tests/test_layout.py -v`
 Expected: PASS, 7 testes.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add pyproject.toml .gitignore uv.lock src/ tests/
@@ -305,7 +378,7 @@ git commit -m "feat: projeto e geometria da folha"
   - `gerar_pdf(caminho) -> None` — salva a página A4 em 300 DPI.
   - `fonte(tamanho_px) -> PIL.ImageFont.FreeTypeFont` — usada também pelo `sintetico.py` e pelo `anotar.py`.
 
-- [ ] **Step 1: Escrever o teste que falha**
+- [x] **Step 1: Escrever o teste que falha**
 
 O teste importante não é "desenhou alguma coisa", é **o próprio detector ArUco encontrar os 4 marcadores na folha que acabamos de desenhar, com os IDs nos cantos certos**. Isso fecha o ciclo gerador↔leitor.
 
@@ -379,12 +452,12 @@ def test_gera_pdf(tmp_path):
     assert destino.stat().st_size > 5_000
 ```
 
-- [ ] **Step 2: Rodar para confirmar que falha**
+- [x] **Step 2: Rodar para confirmar que falha**
 
 Run: `uv run pytest tests/test_gerar_folha.py -v`
 Expected: FAIL com `ModuleNotFoundError: No module named 'gabarito.gerar_folha'`
 
-- [ ] **Step 3: Escrever `gerar_folha.py`**
+- [x] **Step 3: Escrever `gerar_folha.py`**
 
 ```python
 # src/gabarito/gerar_folha.py
@@ -516,12 +589,12 @@ def gerar_pdf(caminho):
     )
 ```
 
-- [ ] **Step 4: Rodar para confirmar que passa**
+- [x] **Step 4: Rodar para confirmar que passa**
 
 Run: `uv run pytest tests/test_gerar_folha.py -v`
 Expected: PASS, 5 testes.
 
-- [ ] **Step 5: Gerar a folha e olhar com os próprios olhos**
+- [x] **Step 5: Gerar a folha e olhar com os próprios olhos**
 
 ```bash
 uv run python -c "from gabarito import gerar_folha; gerar_folha.gerar_pdf('saida/folha.pdf'); print('ok')"
@@ -530,7 +603,7 @@ open saida/folha.pdf
 
 Confira visualmente: 4 marcadores nos cantos, caixa do nome sem encostar nos marcadores, 8 linhas numeradas com A/B/C/D, instrução legível e acentuada ("questão", não "quest?o").
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/gabarito/gerar_folha.py tests/test_gerar_folha.py
