@@ -27,6 +27,11 @@ Se nenhuma fonte TrueType com acentuação estiver nos caminhos padrão, defina
 `GABARITO_FONTE` apontando para um arquivo `.ttf` ou `.otf`. O gerador falha
 explicitamente nesse caso para não produzir uma folha com texto corrompido.
 
+Para demonstrar sem papel impresso, execute `uv run python
+scripts/gerar_demos.py` e envie os arquivos `*_entrada.jpg` de `saida/demos/`
+para a interface. O roteiro dos cinco cenários está em
+[`docs/demos.md`](docs/demos.md).
+
 ## Funcionamento
 
 O fluxo da aplicação é:

@@ -406,6 +406,16 @@ UV_CACHE_DIR=/private/tmp/visao-uv-cache uv run streamlit run app.py
 
 Abra <http://localhost:8501>.
 
+Para preparar uma demonstração completa sem papel, gere o kit de cenários:
+
+```bash
+UV_CACHE_DIR=/private/tmp/visao-uv-cache uv run python scripts/gerar_demos.py
+```
+
+Os arquivos ficam em `saida/demos/`. Envie os arquivos `*_entrada.jpg` para a
+interface; as imagens `*_conferencia.png` já mostram visualmente o resultado
+esperado. A tabela e os detalhes estão em [`docs/demos.md`](docs/demos.md).
+
 Se quiser testar sem papel, gere uma foto sintética:
 
 ```bash
@@ -500,10 +510,11 @@ imagens sintéticas. O teste com papel real ainda é necessário.
 | `src/gabarito/nome.py` | recorte e OCR opcional |
 | `tests/sintetico.py` | gerador de folhas/fotos sintéticas |
 | `tests/test_pipeline.py` | validação ponta a ponta |
+| `scripts/gerar_demos.py` | gera o kit visual para demonstração sem papel |
 | `README.md` | instruções curtas de uso |
 
 ## 20. Estado final
 
-As branches `main` e `implementacao` estão sincronizadas no commit
-`d4a2d71`. O código está testado, a UI está disponível localmente e a próxima
-etapa é imprimir uma folha e testar com uma foto real.
+O código está testado, a UI está disponível localmente e o kit de demonstração
+sem papel pode ser recriado com `scripts/gerar_demos.py`. A próxima etapa de
+validação do mundo físico é imprimir uma folha e testar com uma foto real.
