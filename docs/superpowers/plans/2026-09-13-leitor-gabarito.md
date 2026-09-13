@@ -26,7 +26,7 @@
 
 ## Estado da execução
 
-**Última atualização: 2026-09-13. Tasks 1 e 2 concluídas; Tasks 3–10 não iniciadas.**
+**Última atualização: 2026-09-13. Tasks 1–10 concluídas.**
 
 Trabalho na branch `implementacao` (publicada). `main` só tem a spec e o plano.
 
@@ -34,14 +34,23 @@ Trabalho na branch `implementacao` (publicada). `main` só tem a spec e o plano.
 |---|---|---|
 | 1 — Projeto e geometria | ✅ concluída | `0a5fae3` |
 | 2 — Gerar a folha em branco | ✅ concluída | `7b2deca`, `9dbb24f` |
-| 3–10 | ⬜ não iniciadas | — |
+| 3 — Gerador sintético de fotos | ✅ concluída | `fd575fa` |
+| 4 — Alinhamento por ArUco | ✅ concluída | `1003c3c` |
+| 5 — Medir o preenchimento | ✅ concluída | `f5ffb99` |
+| 6 — Regras de correção | ✅ concluída | `460c4e5` |
+| 7 — Integração do pipeline | ✅ concluída | `405c093` |
+| 8 — Imagem de conferência | ✅ concluída | `ed0efa3` |
+| 9 — Leitura do nome | ✅ concluída | `e1dfc89` |
+| 10 — Interface Streamlit e README | ✅ concluída | `3a3b17f` |
 
-Suíte atual: 14 testes passando (`uv run pytest -q`).
+Suíte atual: 286 testes passando (`uv run pytest -q`). A verificação manual do
+Streamlit confirmou upload sintético, placar `6/8`, anulação, questão em branco,
+download da folha e atualização do placar ao alterar a chave.
 
 ### Para retomar
 
-Execute a Task 3 em diante normalmente. O `layout.py` e o `gerar_folha.py` já
-existem e não devem ser reescritos a partir dos blocos de código deste plano.
+As Tasks 3–10 foram executadas. O `layout.py` e o `gerar_folha.py` já existem e
+não devem ser reescritos a partir dos blocos de código deste plano.
 
 ### Divergências entre o plano e o código já escrito
 
