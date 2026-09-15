@@ -16,8 +16,14 @@ from gabarito.ler_marcas import ler_marcas
 CHAVE_PADRAO = ["A", "B", "C", "D", "A", "B", "C", "D"]
 
 
+@st.cache_data(show_spinner=False)
 def _pdf_folha():
-    """Gera o PDF da folha sem deixar uma falha de fonte derrubar a página."""
+    """Gera o PDF da folha sem deixar uma falha de fonte derrubar a página.
+
+    A folha em branco não depende de nenhuma entrada do usuário, então o
+    desenho A4 é reaproveitado entre os reruns disparados pela chave de
+    respostas.
+    """
     buffer = io.BytesIO()
     Image.fromarray(gerar_folha.desenhar_a4(2480)).convert("RGB").save(
         buffer, "PDF", resolution=300.0
