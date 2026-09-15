@@ -45,6 +45,16 @@ Depois envie os arquivos `*_entrada.jpg` de `saida/demos/` para a interface. O
 roteiro dos cinco cenários está em
 [`docs/demos.md`](docs/demos.md).
 
+Para gerar a apresentação em PDF a partir do Markdown, com Node.js instalado:
+
+```bash
+uv run python scripts/gerar_apresentacao.py
+```
+
+O roteiro está em [`docs/apresentacao.md`](docs/apresentacao.md) e a versão
+gerada fica em [`docs/apresentacao.pdf`](docs/apresentacao.pdf). O script usa
+`npx` para baixar e executar o Marp CLI quando necessário.
+
 ## Funcionamento
 
 O fluxo da aplicação é:
