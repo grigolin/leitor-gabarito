@@ -14,10 +14,19 @@ from PIL import Image, ImageDraw, ImageFont
 
 from . import layout as L
 
+# Cada distribuição guarda as mesmas fontes em um lugar diferente, então a
+# lista cobre os dois layouts comuns: Debian/Ubuntu aninham por família sob
+# `truetype/`, Arch/Manjaro e Fedora usam `TTF/` ou a família na raiz.
 _CAMINHOS_DE_FONTE = (
     "/System/Library/Fonts/Supplemental/Arial.ttf",
     "/Library/Fonts/Arial.ttf",
     "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+    "/usr/share/fonts/TTF/DejaVuSans.ttf",
+    "/usr/share/fonts/dejavu/DejaVuSans.ttf",
+    "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
+    "/usr/share/fonts/liberation/LiberationSans-Regular.ttf",
+    "/usr/share/fonts/truetype/noto/NotoSans-Regular.ttf",
+    "/usr/share/fonts/noto/NotoSans-Regular.ttf",
 )
 
 
